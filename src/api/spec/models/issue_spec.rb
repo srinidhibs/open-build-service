@@ -21,4 +21,16 @@ RSpec.describe Issue, vcr: true do
       expect(issue_tracker).to have_received(:fetch_issues)
     end
   end
+
+  describe 'validations' do
+    let!(:issue_tracker) { create(:issue_tracker) }
+    let!(:issue) { create(:issue, name: '1234', issue_tracker: issue_tracker) }
+    let!(:issue_v1) { create(:issue, name: 'B-1234', issue_tracker: issue_tracker) }
+    let!(:issue_tracker_cve) { create(:issue_tracker, name: 'cve_tracker', regex: '(?:cve|CVE)-(\d\d\d\d-\d+)') }
+    let!(:issue_cve) { create(:issue, name: 'CVE-2019-12345', issue_tracker: issue_tracker_cve) }
+
+    it { expect(issue).to be_valid }
+    it { expect(issue_v1).to be_valid }
+    it { expect(issue_cve).to be_valid }
+  end
 end
