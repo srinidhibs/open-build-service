@@ -15,15 +15,15 @@ class Issue < ApplicationRecord
     message: ->(issue, data) { "with value \'#{data[:value]}\' does not match defined regex #{issue.issue_tracker.regex}" }
   }
 
-  # rubocop:disable Lint/UselessAssignment
+  # rubocop:disable Lint/UselessAssignment, Lint/UnneededCopDisableDirective, Style/RedundantSelf
   before_validation do
-    name = issue_tracker.show_label_for(name)
+    self.name = issue_tracker.show_label_for(self.name)
   end
 
   after_validation do
-    name = name[Regexp.new(issue_tracker.regex), 1]
+    self.name = name[Regexp.new(self.issue_tracker.regex), 1]
   end
-  # rubocop:enable Lint/UselessAssignment
+  # rubocop:enable Lint/UselessAssignment, Lint/UnneededCopDisableDirective, Style/RedundantSelf
 
   scope :stateless, -> { where(state: nil) }
 
