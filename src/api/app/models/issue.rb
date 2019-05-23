@@ -10,20 +10,12 @@ class Issue < ApplicationRecord
   belongs_to :issue_tracker
   belongs_to :owner, class_name: 'User'
 
-  validates :name, on: :create, format: {
-    with: ->(issue) { Regexp.new(issue.issue_tracker.regex) },
-    message: ->(issue, data) { "with value \'#{data[:value]}\' does not match defined regex #{issue.issue_tracker.regex}" }
-  }
+  validate :name_validation, on: :create
 
-  # rubocop:disable Lint/UselessAssignment, Lint/UnneededCopDisableDirective, Style/RedundantSelf
-  before_validation do
-    self.name = issue_tracker.show_label_for(self.name)
+  def name_validation
+    return if issue_tracker.show_label_for(name).match?(issue_tracker.regex)
+    errors.add(:name, "with value \'#{name}\' does not match defined regex #{issue_tracker.regex}")
   end
-
-  after_validation do
-    self.name = name[Regexp.new(self.issue_tracker.regex), 1]
-  end
-  # rubocop:enable Lint/UselessAssignment, Lint/UnneededCopDisableDirective, Style/RedundantSelf
 
   scope :stateless, -> { where(state: nil) }
 
